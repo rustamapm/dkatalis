@@ -1,0 +1,106 @@
+---
+- name: Configure Elasticsearch
+  hosts: master
+  become: true
+  tasks:
+    - name: Ensure Elasticsearch is enabled and started
+      systemd:
+        name: elasticsearch
+        enabled: yes
+        state: started
+
+    - name: Update Elasticsearch configuration
+      blockinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        block: |
+          cluster.name: my-application
+          node.name: node-1
+          network.host: 172.31.12.228
+          http.port: 9200
+
+    - name: Ensure Elasticsearch is restarted
+      systemd:
+        name: elasticsearch
+        state: restarted
+
+    - name: Generate Elasticsearch enrollment token for node
+      command: /usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s node
+      register: elasticsearch_node_token
+
+    - name: Show Elasticsearch enrollment token
+      debug:
+        var: elasticsearch_node_token.stdout_lines
+
+- name: Configure Elasticsearch
+  hosts: node2
+  become: true
+  vars_prompt:
+    - name: input_elasticsearch_enrollment_token
+      prompt: "Please enter the Elasticsearch enrollment token"
+      private: no
+  tasks:
+    - name: Generate Elasticsearch enrollment token for node
+      shell: echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token {{ input_elasticsearch_enrollment_token }}
+
+    - name: Update Elasticsearch configuration
+      blockinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        block: |
+          cluster.name: my-application
+          node.name: node-2
+          network.host: 172.31.13.125
+          http.port: 9200
+
+    - name: Ensure Elasticsearch is enabled and started
+      systemd:
+        name: elasticsearch
+        enabled: yes
+        state: started
+      
+- name: Configure Elasticsearch
+  hosts: node3
+  become: true
+  vars_prompt:
+    - name: input_elasticsearch_enrollment_token
+      prompt: "Please enter the Elasticsearch enrollment token"
+      private: no
+  tasks:
+    - name: Generate Elasticsearch enrollment token for node
+      shell: echo 'y' | /usr/share/elasticsearch/bin/elasticsearch-reconfigure-node --enrollment-token {{ input_elasticsearch_enrollment_token }}
+
+    - name: Update Elasticsearch configuration
+      blockinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        block: |
+          cluster.name: my-application
+          node.name: node-3
+          network.host: 172.31.15.236
+          http.port: 9200
+
+    - name: Ensure Elasticsearch is enabled and started
+      systemd:
+        name: elasticsearch
+        enabled: yes
+        state: started
+
+- name: Update Discovery Seed
+  hosts: master
+  become: true
+  tasks:
+    - name: Update discovery.seed_hosts in elasticsearch.yml
+      lineinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^cluster\.initial_master_nodes:'
+        line: 'discovery.seed_hosts: ["172.31.12.228:9300", "172.31.13.125:9300", "172.31.15.236:9300"]'
+
+- name: Update Discovery Seed
+  hosts: 
+    - node2
+    - node3
+  become: true
+  tasks:
+    - name: Update discovery.seed_hosts in elasticsearch.yml
+      lineinfile:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^discovery\.seed_hosts:'
+        line: 'discovery.seed_hosts: ["172.31.12.228:9300", "172.31.13.125:9300", "172.31.15.236:9300"]'
