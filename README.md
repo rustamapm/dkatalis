@@ -26,12 +26,14 @@ I don't use the free tier instance because the server hangs when I run elasticse
 - (Don't forget to replace inventory.yaml with the ip output from terraform also replace network.hosts and discovery.seed_hosts in elasticsearch.yaml file). Here I apply interactive mode to give value to the enrollment-token on the replica node.
   
 <img width="1049" alt="Screenshot 2024-05-15 at 11 28 59" src="https://github.com/rustamapm/dkatalis/assets/48707823/01a1a088-22c6-4d14-8e54-8f860f88f966">
+|
 <img width="1032" alt="Screenshot 2024-05-15 at 11 24 40" src="https://github.com/rustamapm/dkatalis/assets/48707823/e249e5c2-5a8f-4a17-ba9d-3fa9de798868">
 
 
 ### Cluster already up with 3 nodes
   
 <img width="1076" alt="Screenshot 2024-05-15 at 11 32 43" src="https://github.com/rustamapm/dkatalis/assets/48707823/df17db69-da1e-4bd9-aa11-6210c003bdbc">
+|
 <img width="1071" alt="Screenshot 2024-05-15 at 11 32 37" src="https://github.com/rustamapm/dkatalis/assets/48707823/16e66d5c-161f-4132-bd8b-a12d1a9291a7">
 
 
